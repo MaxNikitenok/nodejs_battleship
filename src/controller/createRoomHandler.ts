@@ -1,4 +1,5 @@
 import { wss } from '../ws_server';
+import { currentUser } from './regHandler';
 
 export const createRoomHandler = () => {
 wss.clients.forEach(client => {
@@ -10,10 +11,7 @@ wss.clients.forEach(client => {
               roomId: 0,
               roomUsers:
                   [
-                      {
-                          name: 11111,
-                          index: 0,
-                      }
+                      currentUser
                   ],
           },
           ]

@@ -1,28 +1,14 @@
-import { readFile, writeFile } from 'fs/promises';
+import { getUserByName, createUser } from '../dataBase/dataBase';
+
+export let currentUser = {} as { name: string; index: number };
 
 export const regHandler = async (data: string, socket: import('ws')) => {
   const body = JSON.parse(data);
 
-  const dataBase = await readFile('src/dataBase/dataBase.json');
-
-  const parsedDataBase = JSON.parse(dataBase.toString());
-
-  const createUser = async (user: { name: string; password: string }) => {
-    return { id: parsedDataBase.length, ...user };
-  };
-
-  const registeredUser = parsedDataBase.find((user: { name: string }) => {
-    return user.name === body.name;
-  });
+  const registeredUser = getUserByName(body.name)
 
   if (!registeredUser) {
-    const newUser = await createUser(body);
-
-    await parsedDataBase.push(newUser);
-
-    const updatedDataBase = JSON.stringify(parsedDataBase);
-
-    await writeFile('src/dataBase/dataBase.json', updatedDataBase);
+    const newUser = createUser(body);
 
     socket.send(
       JSON.stringify({
@@ -36,6 +22,7 @@ export const regHandler = async (data: string, socket: import('ws')) => {
         id: 0,
       })
     );
+    currentUser = { name: newUser.name, index: newUser.id };
   } else {
     if (registeredUser.password !== body.password) {
       socket.send(
@@ -63,6 +50,7 @@ export const regHandler = async (data: string, socket: import('ws')) => {
           id: 0,
         })
       );
+      currentUser = { name: registeredUser.name, index: registeredUser.id };
     }
   }
 };
