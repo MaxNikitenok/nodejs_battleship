@@ -15,14 +15,14 @@ export const regHandler = async (data: string, socket: import('ws')) => {
         type: 'reg',
         data: JSON.stringify({
           name: newUser.name,
-          index: newUser.id,
+          index: newUser.index,
           error: false,
           errorText: '',
         }),
         id: 0,
       })
     );
-    currentUser = { name: newUser.name, index: newUser.id };
+    currentUser = { name: newUser.name, index: newUser.index };
   } else {
     if (registeredUser.password !== body.password) {
       socket.send(
@@ -30,7 +30,7 @@ export const regHandler = async (data: string, socket: import('ws')) => {
           type: 'reg',
           data: JSON.stringify({
             name: registeredUser.name,
-            index: registeredUser.id,
+            index: registeredUser.index,
             error: true,
             errorText: 'User exist, wrong password',
           }),
@@ -43,14 +43,14 @@ export const regHandler = async (data: string, socket: import('ws')) => {
           type: 'reg',
           data: JSON.stringify({
             name: registeredUser.name,
-            index: registeredUser.id,
+            index: registeredUser.index,
             error: false,
             errorText: '',
           }),
           id: 0,
         })
       );
-      currentUser = { name: registeredUser.name, index: registeredUser.id };
+      currentUser = { name: registeredUser.name, index: registeredUser.index };
     }
   }
 };
