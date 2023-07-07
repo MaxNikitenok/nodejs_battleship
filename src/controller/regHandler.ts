@@ -1,14 +1,12 @@
 import { getUserByName, createUser } from '../dataBase/dataBase';
 
-export let currentUser = {} as { name: string; index: number };
-
-export const regHandler = async (data: string, socket: import('ws')) => {
+export const regHandler = async (data: string, socket: import("ws")) => {
   const body = JSON.parse(data);
 
   const registeredUser = getUserByName(body.name)
 
   if (!registeredUser) {
-    const newUser = createUser(body);
+    const newUser = createUser(body, socket);
 
     socket.send(
       JSON.stringify({
@@ -22,7 +20,7 @@ export const regHandler = async (data: string, socket: import('ws')) => {
         id: 0,
       })
     );
-    currentUser = { name: newUser.name, index: newUser.index };
+
   } else {
     if (registeredUser.password !== body.password) {
       socket.send(
@@ -50,7 +48,6 @@ export const regHandler = async (data: string, socket: import('ws')) => {
           id: 0,
         })
       );
-      currentUser = { name: registeredUser.name, index: registeredUser.index };
     }
   }
 };

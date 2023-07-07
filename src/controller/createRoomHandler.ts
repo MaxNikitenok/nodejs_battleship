@@ -1,10 +1,9 @@
 import { createRoom } from '../dataBase/dataBase';
 import { wss } from '../ws_server';
-import { currentUser } from './regHandler';
 
-export const createRoomHandler = () => {
+export const createRoomHandler = (socket: import("ws")) => {
 
-const newRoom = createRoom(currentUser)
+const newRoom = createRoom(socket)
 
 wss.clients.forEach(client => {
   client.send(JSON.stringify({

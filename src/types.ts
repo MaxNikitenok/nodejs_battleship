@@ -4,6 +4,7 @@ export type INewUser = {
 };
 export interface IUser extends INewUser {
   index: number;
+  ws: import("ws");
 }
 
 export type ICurrentUser = {
@@ -19,4 +20,18 @@ export type IRoom = {
       index: number;
     }
   ];
+};
+
+export type IShips = {
+  gameId: number;
+  ships: {
+    position: {
+      x: number;
+      y: number;
+    };
+    direction: boolean;
+    length: number;
+    type: 'small' | 'medium' | 'large' | 'huge';
+  }[];
+  indexPlayer: number;
 };
