@@ -1,12 +1,13 @@
 import { getRoomShips, getUsers } from './../dataBase/dataBase';
 import { addShips } from '../dataBase/dataBase';
-import { IShips } from '../types';
 import { wss } from '../ws_server';
 
-export const addShipsHandler = async (data: IShips) => {
-  addShips(data);
+export const addShipsHandler = async (data: string) => {
+  const parsedData = JSON.parse(data)
 
-  const roomShips = getRoomShips(data.gameId);
+  addShips(parsedData);
+
+  const roomShips = getRoomShips(parsedData.gameId);
 
   const users = getUsers();
 

@@ -4,7 +4,7 @@ export type INewUser = {
 };
 export interface IUser extends INewUser {
   index: number;
-  ws: import("ws");
+  ws: import('ws');
 }
 
 export type ICurrentUser = {
@@ -32,6 +32,18 @@ export type IShips = {
     direction: boolean;
     length: number;
     type: 'small' | 'medium' | 'large' | 'huge';
+    shipPositions: {
+      x: number;
+      y: number;
+    }[];
+    freeAreaPositions: {
+      x: number;
+      y: number;
+    }[];
+    hits: {
+      x: number;
+      y: number;
+    }[];
   }[];
   indexPlayer: number;
 };
