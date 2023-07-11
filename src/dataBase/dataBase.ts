@@ -98,29 +98,35 @@ export const getShipInfo = (
     freeArea: [],
   };
 
-  ShipsDB.map(s=>{
-    if(s.indexPlayer===target){
+  ShipsDB.map((s) => {
+    if (s.indexPlayer === target) {
       s.ships = enemyShips.ships.map((item) => {
-    const res = item.shipPositions.find((ship) => {
-      return ship.x === data.x && ship.y === data.y;
-    });
+        const res = item.shipPositions.find((ship) => {
+          return ship.x === data.x && ship.y === data.y;
+        });
 
-    if (res) {
-      item.hits.push(res);
-      
-      if (item.length === item.hits.length) {
-        shootResult.status = 'killed';
-        shootResult.freeArea = item.freeAreaPositions;
-        shootResult.shipPositions = item.shipPositions;
-      } else {
-        shootResult.status = 'shot';
+        if (res) {
+          item.hits = item.hits.filter((ship) => ship !== res)
+          item.shipPositions = item.hits
+
+          if (item.hits.length === 0) {
+            shootResult.status = 'killed';
+            shootResult.freeArea = item.freeAreaPositions;
+            shootResult.shipPositions = item.shipPositions;
+          } else {
+            shootResult.status = 'shot';
+          }
+          return item;
+        }
+        return item;
+      });
+      const allHits = s.ships.reduce((ac, i) => ac + i.hits.length, 0)
+
+      if (allHits === 0) {
+        shootResult.status = 'finish';
       }
-      return item;
     }
-    return item;
   });
-    }
-  })
 
   return shootResult;
 };

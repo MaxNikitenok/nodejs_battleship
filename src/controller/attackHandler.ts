@@ -11,10 +11,7 @@ export const attackHandler = (data: string, socket: import('ws')) => {
 
   if (flag === null) flag = firstAttacker;
 
-  console.log('attacker', firstAttacker);
-
   const prevShooter = getUserBySocket(socket);
-  console.log('flag', flag, '\n', 'shooter', prevShooter.index);
   if (prevShooter.index !== flag) return;
   const currentShooter = room.roomUsers.find((user) => {
     const shooter = user.index !== prevShooter.index;
@@ -42,7 +39,6 @@ export const attackHandler = (data: string, socket: import('ws')) => {
 
   if (shootResult.status === 'miss') {
     flag = currentShooter.index;
-    console.log('currentShooter.index', currentShooter.index);
 
     wss.clients.forEach((client) => {
       client.send(
@@ -73,7 +69,6 @@ export const attackHandler = (data: string, socket: import('ws')) => {
     });
   }
 
-  console.log(shootResult);
 
   if (shootResult.status === 'killed') {
     flag = prevShooter.index;
@@ -122,6 +117,60 @@ export const attackHandler = (data: string, socket: import('ws')) => {
           type: 'turn',
           data: JSON.stringify({
             currentPlayer: prevShooter.index,
+          }),
+          id: 0,
+        })
+      );
+    });
+  }
+
+  if (shootResult.status === 'finish') {
+    flag = prevShooter.index;
+
+    shootResult.freeArea.forEach((item) => {
+      wss.clients.forEach((client) => {
+        client.send(
+          JSON.stringify({
+            type: 'attack',
+            data: JSON.stringify({
+              position: {
+                x: item.x,
+                y: item.y,
+              },
+              currentPlayer: prevShooter.index,
+              status: 'miss',
+            }),
+            id: 0,
+          })
+        );
+      });
+    });
+
+    shootResult.shipPositions.forEach((item) => {
+      wss.clients.forEach((client) => {
+        client.send(
+          JSON.stringify({
+            type: 'attack',
+            data: JSON.stringify({
+              position: {
+                x: item.x,
+                y: item.y,
+              },
+              currentPlayer: prevShooter.index,
+              status: 'killed',
+            }),
+            id: 0,
+          })
+        );
+      });
+    });
+
+    wss.clients.forEach((client) => {
+      client.send(
+        JSON.stringify({
+          type: 'finish',
+          data: JSON.stringify({
+            winPlayer: prevShooter.index,
           }),
           id: 0,
         })

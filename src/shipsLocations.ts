@@ -39,7 +39,7 @@ export const locationsParser = (ships: IShips) => {
 
       o.shipPositions = [],
       o.freeAreaPositions = [],
-      o.hits = []
+      o.hits = o.shipPositions;
 
     if(o.direction) {
       for (let j = 0; j<o.length; j++) {
