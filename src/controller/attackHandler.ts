@@ -1,4 +1,4 @@
-import { getRoom, getShipInfo, getUserBySocket } from '../dataBase/dataBase';
+import { addWin, getRoom, getShipInfo, getUserBySocket, getWinnersList } from '../dataBase/dataBase';
 import { wss } from '../ws_server';
 import { firstAttacker } from './addShipsHandler';
 
@@ -126,6 +126,18 @@ export const attackHandler = (data: string, socket: import('ws')) => {
 
   if (shootResult.status === 'finish') {
     flag = prevShooter.index;
+
+    addWin(prevShooter.name)
+
+    wss.clients.forEach((client) => {
+      client.send(
+        JSON.stringify({
+          type: 'update_winners',
+          data: JSON.stringify(getWinnersList()),
+          id: 0,
+        })
+      );
+    });
 
     shootResult.freeArea.forEach((item) => {
       wss.clients.forEach((client) => {

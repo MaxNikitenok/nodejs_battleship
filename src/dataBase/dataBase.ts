@@ -1,5 +1,5 @@
 import { locationsParser } from '../shipsLocations';
-import { ICurrentUser, INewUser, IRoom, IShips, IUser } from '../types';
+import { ICurrentUser, INewUser, IRoom, IShips, IUser, IWins } from '../types';
 
 const UserDB: IUser[] = [];
 
@@ -34,6 +34,7 @@ export const createRoom = (socket: import('ws')) => {
   const createdRoom: IRoom = {
     roomId: RoomDB.length,
     roomUsers: [{ name: creator.name, index: creator.index }],
+    userSockets: [{ index: creator.index, ws: creator.ws }],
   };
   RoomDB.push(createdRoom);
 
@@ -42,7 +43,8 @@ export const createRoom = (socket: import('ws')) => {
 
 export const updateRoom = (user: ICurrentUser, roomId: number) => {
   const updatedRoom: IRoom = RoomDB.find((room) => room.roomId === roomId);
-  updatedRoom.roomUsers.push(user);
+  updatedRoom.roomUsers.push({ name: user.name, index: user.index });
+  updatedRoom.userSockets.push({ index: user.index, ws: user.ws });
 
   return updatedRoom;
 };
@@ -88,8 +90,6 @@ export const getShipInfo = (
     return ships.indexPlayer === target;
   });
 
-  // const enemyShipsLocations = locationsParser(enemyShips);
-
   const shootResult = {
     status: 'miss',
     x: data.x,
@@ -98,35 +98,58 @@ export const getShipInfo = (
     freeArea: [],
   };
 
-  ShipsDB.map((s) => {
-    if (s.indexPlayer === target) {
-      s.ships = enemyShips.ships.map((item) => {
-        const res = item.shipPositions.find((ship) => {
-          return ship.x === data.x && ship.y === data.y;
-        });
+  enemyShips.ships.map((item) => {
+    const res = item.shipPositions.find((ship) => {
+      return ship.x === data.x && ship.y === data.y;
+    });
 
-        if (res) {
-          item.hits = item.hits.filter((ship) => ship !== res)
-          item.shipPositions = item.hits
+    if (res) {
+      item.hits = item.hits.filter((ship) => ship !== res);
 
-          if (item.hits.length === 0) {
-            shootResult.status = 'killed';
-            shootResult.freeArea = item.freeAreaPositions;
-            shootResult.shipPositions = item.shipPositions;
-          } else {
-            shootResult.status = 'shot';
-          }
-          return item;
-        }
-        return item;
-      });
-      const allHits = s.ships.reduce((ac, i) => ac + i.hits.length, 0)
-
-      if (allHits === 0) {
-        shootResult.status = 'finish';
+      if (item.hits.length === 0) {
+        shootResult.status = 'killed';
+        shootResult.freeArea = item.freeAreaPositions;
+        shootResult.shipPositions = item.shipPositions;
+      } else {
+        shootResult.status = 'shot';
       }
+      return;
     }
+    return;
   });
+  const allHits = enemyShips.ships.reduce((ac, i) => ac + i.hits.length, 0);
+
+  if (allHits === 0) {
+    shootResult.status = 'finish';
+  }
 
   return shootResult;
+};
+
+const WinsDB: IWins[] = [];
+
+export const addToWinnerList = (userName: string) => {
+  WinsDB.push({
+    name: userName,
+    wins: 0,
+  });
+};
+
+export const getWinnersList = () => {
+  return WinsDB;
+};
+
+export const getUserWins = (userName: string) => {
+  const user = WinsDB.find((user) => {
+    return user.name === userName;
+  });
+  return user.wins;
+};
+
+export const addWin = (userName: string) => {
+  WinsDB.map((user) => {
+    if (user.name === userName) {
+      user.wins += 1;
+    }
+  });
 };

@@ -1,6 +1,5 @@
-import { getUserBySocket, getUsers, updateRoom } from '../dataBase/dataBase';
+import { getUserBySocket, updateRoom } from '../dataBase/dataBase';
 import { wss } from '../ws_server';
-// import { currentUser } from './regHandler';
 
 export const addUserToRoomHandler = (data: string, socket: import('ws')) => {
   const indexRoom = JSON.parse(data).indexRoom;
@@ -10,6 +9,7 @@ export const addUserToRoomHandler = (data: string, socket: import('ws')) => {
     return {
       name: user.name,
       index: user.index,
+      ws: user.ws,
     };
   };
 
@@ -19,28 +19,22 @@ export const addUserToRoomHandler = (data: string, socket: import('ws')) => {
     client.send(
       JSON.stringify({
         type: 'update_room',
-        data: JSON.stringify([room]),
+        data: JSON.stringify([{roomId: room.roomId, roomUsers: room.roomUsers}]),
         id: 0,
       })
     );
   });
 
-  const users = getUsers();
-
-  function sendAll() {
-    for (let i = 0; i < users.length; i++) {
-      users[i].ws.send(
+    room.userSockets.forEach( user => {
+      user.ws.send(
         JSON.stringify({
           type: 'create_game',
           data: JSON.stringify({
             idGame: room.roomId,
-            idPlayer: i,
+            idPlayer: user.index,
           }),
           id: 0,
         })
       );
-    }
-  }
-
-  sendAll();
+    })
 };

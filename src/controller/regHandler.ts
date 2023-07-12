@@ -1,4 +1,5 @@
-import { getUserByName, createUser } from '../dataBase/dataBase';
+import { getUserByName, createUser, addToWinnerList, getWinnersList } from '../dataBase/dataBase';
+import { wss } from '../ws_server';
 
 export const regHandler = async (data: string, socket: import("ws")) => {
   const body = JSON.parse(data);
@@ -7,6 +8,9 @@ export const regHandler = async (data: string, socket: import("ws")) => {
 
   if (!registeredUser) {
     const newUser = createUser(body, socket);
+
+    addToWinnerList(newUser.name)
+
 
     socket.send(
       JSON.stringify({
@@ -20,6 +24,16 @@ export const regHandler = async (data: string, socket: import("ws")) => {
         id: 0,
       })
     );
+
+    wss.clients.forEach((client) => {
+      client.send(
+        JSON.stringify({
+          type: 'update_winners',
+          data: JSON.stringify(getWinnersList()),
+          id: 0,
+        })
+      );
+    });
 
   } else {
     if (registeredUser.password !== body.password) {
@@ -49,5 +63,15 @@ export const regHandler = async (data: string, socket: import("ws")) => {
         })
       );
     }
+
+    wss.clients.forEach((client) => {
+      client.send(
+        JSON.stringify({
+          type: 'update_winners',
+          data: JSON.stringify(getWinnersList()),
+          id: 0,
+        })
+      );
+    });
   }
 };

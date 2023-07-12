@@ -10,6 +10,7 @@ export interface IUser extends INewUser {
 export type ICurrentUser = {
   name: string;
   index: number;
+  ws: import('ws');
 };
 
 export type IRoom = {
@@ -20,6 +21,7 @@ export type IRoom = {
       index: number;
     }
   ];
+  userSockets: { index: number; ws: import('ws') }[];
 };
 
 export type IShips = {
@@ -46,4 +48,9 @@ export type IShips = {
     }[];
   }[];
   indexPlayer: number;
+};
+
+export type IWins = {
+  name: string;
+  wins: number;
 };
