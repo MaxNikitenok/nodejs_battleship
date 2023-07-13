@@ -58,6 +58,16 @@ export const getRoom = (roomId: number) => {
   return room;
 };
 
+export const deleteRoom = (roomId: number) => {
+  RoomDB.map((room, i) => {
+    if (room.roomId === roomId) {
+      RoomDB.splice(i, 1);
+  }
+  });
+
+  console.log('RoomDB', RoomDB);
+};
+
 const ShipsDB: IShips[] = [];
 
 export const addShips = (data: IShips) => {
@@ -124,6 +134,20 @@ export const getShipInfo = (
   }
 
   return shootResult;
+};
+
+export const deleteRoomShips = (roomId: number) => {
+  ShipsDB.forEach((ships, i) => {
+    if (ships.gameId === roomId) {
+      ShipsDB.splice(i, 1);
+    }
+  });
+  ShipsDB.forEach((ships, i) => {
+    if (ships.gameId === roomId) {
+      ShipsDB.splice(i, 1);
+    }
+  });
+  console.log('ShipsDB', ShipsDB);
 };
 
 const WinsDB: IWins[] = [];
