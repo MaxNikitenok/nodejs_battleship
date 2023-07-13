@@ -160,7 +160,8 @@ export const addToWinnerList = (userName: string) => {
 };
 
 export const getWinnersList = () => {
-  return WinsDB;
+  const sortedWinsDB = WinsDB.sort((a, b) => b.wins - a.wins)
+  return sortedWinsDB;
 };
 
 export const getUserWins = (userName: string) => {
