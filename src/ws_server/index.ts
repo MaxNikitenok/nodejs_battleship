@@ -4,6 +4,7 @@ import { createRoomHandler } from '../controller/createRoomHandler';
 import { addUserToRoomHandler } from '../controller/addUserToRoomHandler';
 import { addShipsHandler } from '../controller/addShipsHandler';
 import { attackHandler } from '../controller/attackHandler';
+import { randomAttackHandler } from '../controller/randomAttackHandler';
 
 export const wss = new WebSocketServer({ port: 3000 }, () =>
   console.log('WS server started on 3000 port')
@@ -45,6 +46,13 @@ wss.on('connection', function connection(ws) {
       case 'attack':
         try {
           attackHandler(parsedMessage.data, ws);
+        } catch (err) {
+          console.log(err);
+        }
+        break;
+      case 'randomAttack':
+        try {
+          randomAttackHandler(parsedMessage.data, ws);
         } catch (err) {
           console.log(err);
         }

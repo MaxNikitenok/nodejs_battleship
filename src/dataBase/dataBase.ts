@@ -73,6 +73,8 @@ export const addShips = (data: IShips) => {
 
   ShipsDB.push(newData);
 
+  console.log(ShipsDB)
+
   return data;
 };
 
@@ -146,6 +148,19 @@ export const deleteRoomShips = (roomId: number) => {
     }
   });
 };
+
+export const getFiredShots = (userId: number) => {
+  const shooter = ShipsDB.find((user) => user.indexPlayer === userId);
+  return shooter.firedShots;
+};
+
+export const addFiredShot = ({ gameId, x, y, indexPlayer}) => {
+  ShipsDB.map((item) => {
+    if(item.gameId === gameId && item.indexPlayer === indexPlayer) {
+      item.firedShots.push({x, y})
+    }
+  })
+}
 
 const WinsDB: IWins[] = [];
 

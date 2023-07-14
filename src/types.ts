@@ -47,6 +47,10 @@ export type IShips = {
       y: number;
     }[];
   }[];
+  firedShots: {
+    x: number;
+    y: number;
+  }[];
   indexPlayer: number;
 };
 

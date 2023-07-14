@@ -1,4 +1,5 @@
 import {
+  addFiredShot,
   addWin,
   deleteRoom,
   deleteRoomShips,
@@ -14,6 +15,8 @@ let flag: number | null = null;
 
 export const attackHandler = (data: string, socket: import('ws')) => {
   const parsedData = JSON.parse(data);
+
+  addFiredShot(parsedData)
 
   const room = getRoom(parsedData.gameId);
 
