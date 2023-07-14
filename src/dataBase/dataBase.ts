@@ -62,10 +62,8 @@ export const deleteRoom = (roomId: number) => {
   RoomDB.map((room, i) => {
     if (room.roomId === roomId) {
       RoomDB.splice(i, 1);
-  }
+    }
   });
-
-  console.log('RoomDB', RoomDB);
 };
 
 const ShipsDB: IShips[] = [];
@@ -147,20 +145,12 @@ export const deleteRoomShips = (roomId: number) => {
       ShipsDB.splice(i, 1);
     }
   });
-  console.log('ShipsDB', ShipsDB);
 };
 
 const WinsDB: IWins[] = [];
 
-export const addToWinnerList = (userName: string) => {
-  WinsDB.push({
-    name: userName,
-    wins: 0,
-  });
-};
-
 export const getWinnersList = () => {
-  const sortedWinsDB = WinsDB.sort((a, b) => b.wins - a.wins)
+  const sortedWinsDB = WinsDB.sort((a, b) => b.wins - a.wins);
   return sortedWinsDB;
 };
 
@@ -172,9 +162,15 @@ export const getUserWins = (userName: string) => {
 };
 
 export const addWin = (userName: string) => {
-  WinsDB.map((user) => {
-    if (user.name === userName) {
-      user.wins += 1;
-    }
-  });
+  const includes = WinsDB.some((item) => item.name === userName);
+  includes
+    ? WinsDB.map((user) => {
+        if (user.name === userName) {
+          user.wins += 1;
+        }
+      })
+    : WinsDB.push({
+        name: userName,
+        wins: 1,
+      });
 };

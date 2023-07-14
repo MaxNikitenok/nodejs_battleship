@@ -132,7 +132,6 @@ export const attackHandler = (data: string, socket: import('ws')) => {
   }
 
   if (shootResult.status === 'finish') {
-    flag = prevShooter.index;
 
     addWin(prevShooter.name);
 

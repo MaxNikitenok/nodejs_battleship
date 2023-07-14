@@ -1,4 +1,4 @@
-import { getUserByName, createUser, addToWinnerList, getWinnersList } from '../dataBase/dataBase';
+import { getUserByName, createUser, getWinnersList } from '../dataBase/dataBase';
 import { wss } from '../ws_server';
 
 export const regHandler = async (data: string, socket: import("ws")) => {
@@ -9,7 +9,7 @@ export const regHandler = async (data: string, socket: import("ws")) => {
   if (!registeredUser) {
     const newUser = createUser(body, socket);
 
-    addToWinnerList(newUser.name)
+    // addToWinnerList(newUser.name)
 
 
     socket.send(
