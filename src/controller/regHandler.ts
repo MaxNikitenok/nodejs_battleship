@@ -1,77 +1,38 @@
-import { getUserByName, createUser, getWinnersList } from '../dataBase/dataBase';
-import { wss } from '../ws_server';
+import { getUserByName, createUser } from '../dataBase/dataBase';
+import { sender } from '../sender';
 
-export const regHandler = async (data: string, socket: import("ws")) => {
+export const regHandler = async (data: string, socket: import('ws')) => {
   const body = JSON.parse(data);
 
-  const registeredUser = getUserByName(body.name)
+  const registeredUser = getUserByName(body.name);
+
+  const userData = {
+    name: '',
+    index: 0,
+    error: false,
+    errorText: '',
+  };
 
   if (!registeredUser) {
     const newUser = createUser(body, socket);
 
-    // addToWinnerList(newUser.name)
+    userData.name = newUser.name;
+    userData.index = newUser.index;
 
-
-    socket.send(
-      JSON.stringify({
-        type: 'reg',
-        data: JSON.stringify({
-          name: newUser.name,
-          index: newUser.index,
-          error: false,
-          errorText: '',
-        }),
-        id: 0,
-      })
-    );
-
-    wss.clients.forEach((client) => {
-      client.send(
-        JSON.stringify({
-          type: 'update_winners',
-          data: JSON.stringify(getWinnersList()),
-          id: 0,
-        })
-      );
-    });
-
+    sender(socket, 'reg', userData);
   } else {
     if (registeredUser.password !== body.password) {
-      socket.send(
-        JSON.stringify({
-          type: 'reg',
-          data: JSON.stringify({
-            name: registeredUser.name,
-            index: registeredUser.index,
-            error: true,
-            errorText: 'User exist, wrong password',
-          }),
-          id: 0,
-        })
-      );
-    } else {
-      socket.send(
-        JSON.stringify({
-          type: 'reg',
-          data: JSON.stringify({
-            name: registeredUser.name,
-            index: registeredUser.index,
-            error: false,
-            errorText: '',
-          }),
-          id: 0,
-        })
-      );
-    }
+      userData.name = registeredUser.name;
+      userData.index = registeredUser.index;
+      userData.error = true;
+      userData.errorText = 'User exist, wrong password';
 
-    wss.clients.forEach((client) => {
-      client.send(
-        JSON.stringify({
-          type: 'update_winners',
-          data: JSON.stringify(getWinnersList()),
-          id: 0,
-        })
-      );
-    });
+      sender(socket, 'reg', userData);
+    } else {
+      userData.name = registeredUser.name;
+      userData.index = registeredUser.index;
+
+      sender(socket, 'reg', userData);
+    }
   }
 };

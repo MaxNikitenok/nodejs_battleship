@@ -8,6 +8,8 @@ import {
   getUserBySocket,
   getWinnersList,
 } from '../dataBase/dataBase';
+import { sender } from '../sender';
+import { IRoom } from '../types';
 import { wss } from '../ws_server';
 import { firstAttacker } from './addShipsHandler';
 
@@ -16,7 +18,7 @@ let flag: number | null = null;
 export const attackHandler = (data: string, socket: import('ws')) => {
   const parsedData = JSON.parse(data);
 
-  addFiredShot(parsedData)
+  addFiredShot(parsedData);
 
   const room = getRoom(parsedData.gameId);
 
@@ -31,52 +33,34 @@ export const attackHandler = (data: string, socket: import('ws')) => {
 
   const shootResult = getShipInfo(parsedData, currentShooter.index);
 
-  wss.clients.forEach((client) => {
-    client.send(
-      JSON.stringify({
-        type: 'attack',
-        data: JSON.stringify({
-          position: {
-            x: shootResult.x,
-            y: shootResult.y,
-          },
-          currentPlayer: prevShooter.index,
-          status: shootResult.status,
-        }),
-        id: 0,
-      })
-    );
+  room.userSockets.forEach((user) => {
+    sender(user.ws, 'attack', {
+      position: {
+        x: shootResult.x,
+        y: shootResult.y,
+      },
+      currentPlayer: prevShooter.index,
+      status: shootResult.status,
+    });
   });
 
   if (shootResult.status === 'miss') {
     flag = currentShooter.index;
 
-    wss.clients.forEach((client) => {
-      client.send(
-        JSON.stringify({
-          type: 'turn',
-          data: JSON.stringify({
-            currentPlayer: currentShooter.index,
-          }),
-          id: 0,
-        })
-      );
+    room.userSockets.forEach((user) => {
+      sender(user.ws, 'turn', {
+        currentPlayer: currentShooter.index,
+      });
     });
   }
 
   if (shootResult.status === 'shot') {
     flag = prevShooter.index;
 
-    wss.clients.forEach((client) => {
-      client.send(
-        JSON.stringify({
-          type: 'turn',
-          data: JSON.stringify({
-            currentPlayer: prevShooter.index,
-          }),
-          id: 0,
-        })
-      );
+    room.userSockets.forEach((user) => {
+      sender(user.ws, 'turn', {
+        currentPlayer: prevShooter.index,
+      });
     });
   }
 
@@ -84,131 +68,86 @@ export const attackHandler = (data: string, socket: import('ws')) => {
     flag = prevShooter.index;
 
     shootResult.freeArea.forEach((item) => {
-      wss.clients.forEach((client) => {
-        client.send(
-          JSON.stringify({
-            type: 'attack',
-            data: JSON.stringify({
-              position: {
-                x: item.x,
-                y: item.y,
-              },
-              currentPlayer: prevShooter.index,
-              status: 'miss',
-            }),
-            id: 0,
-          })
-        );
+      room.userSockets.forEach((user) => {
+        sender(user.ws, 'attack', {
+          position: {
+            x: item.x,
+            y: item.y,
+          },
+          currentPlayer: prevShooter.index,
+          status: 'miss',
+        });
       });
     });
 
     shootResult.shipPositions.forEach((item) => {
-      wss.clients.forEach((client) => {
-        client.send(
-          JSON.stringify({
-            type: 'attack',
-            data: JSON.stringify({
-              position: {
-                x: item.x,
-                y: item.y,
-              },
-              currentPlayer: prevShooter.index,
-              status: 'killed',
-            }),
-            id: 0,
-          })
-        );
+      room.userSockets.forEach((user) => {
+        sender(user.ws, 'attack', {
+          position: {
+            x: item.x,
+            y: item.y,
+          },
+          currentPlayer: prevShooter.index,
+          status: 'killed',
+        });
       });
     });
 
-    wss.clients.forEach((client) => {
-      client.send(
-        JSON.stringify({
-          type: 'turn',
-          data: JSON.stringify({
-            currentPlayer: prevShooter.index,
-          }),
-          id: 0,
-        })
-      );
+    room.userSockets.forEach((user) => {
+      sender(user.ws, 'turn', {
+        currentPlayer: prevShooter.index,
+      });
     });
   }
 
   if (shootResult.status === 'finish') {
+    flag = null;
 
     addWin(prevShooter.name);
 
     wss.clients.forEach((client) => {
-      client.send(
-        JSON.stringify({
-          type: 'update_winners',
-          data: JSON.stringify(getWinnersList()),
-          id: 0,
-        })
-      );
+      sender(client, 'update_winners', getWinnersList());
     });
 
     shootResult.freeArea.forEach((item) => {
-      wss.clients.forEach((client) => {
-        client.send(
-          JSON.stringify({
-            type: 'attack',
-            data: JSON.stringify({
-              position: {
-                x: item.x,
-                y: item.y,
-              },
-              currentPlayer: prevShooter.index,
-              status: 'miss',
-            }),
-            id: 0,
-          })
-        );
+      room.userSockets.forEach((user) => {
+        sender(user.ws, 'attack', {
+          position: {
+            x: item.x,
+            y: item.y,
+          },
+          currentPlayer: prevShooter.index,
+          status: 'miss',
+        });
       });
     });
 
     shootResult.shipPositions.forEach((item) => {
-      wss.clients.forEach((client) => {
-        client.send(
-          JSON.stringify({
-            type: 'attack',
-            data: JSON.stringify({
-              position: {
-                x: item.x,
-                y: item.y,
-              },
-              currentPlayer: prevShooter.index,
-              status: 'killed',
-            }),
-            id: 0,
-          })
-        );
+      room.userSockets.forEach((user) => {
+        sender(user.ws, 'attack', {
+          position: {
+            x: item.x,
+            y: item.y,
+          },
+          currentPlayer: prevShooter.index,
+          status: 'killed',
+        });
       });
     });
 
     deleteRoom(room.roomId);
     deleteRoomShips(room.roomId);
 
-    wss.clients.forEach((client) => {
-      client.send(
-        JSON.stringify({
-          type: 'finish',
-          data: JSON.stringify({
-            winPlayer: prevShooter.index,
-          }),
-          id: 0,
-        })
-      );
+    room.userSockets.forEach((user) => {
+      sender(user.ws, 'finish', {
+        winPlayer: prevShooter.index,
+      });
     });
   }
 
+  const roomData = [] as unknown as IRoom;
+
   wss.clients.forEach((client) => {
-    client.send(
-      JSON.stringify({
-        type: 'update_room',
-        data: JSON.stringify([]),
-        id: 0,
-      })
-    );
+    sender(client, 'update_room', roomData);
   });
 };
