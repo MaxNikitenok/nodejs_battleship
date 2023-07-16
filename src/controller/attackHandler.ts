@@ -1,13 +1,10 @@
 import {
-  addFiredShot,
   addWin,
-  deleteRoom,
-  deleteRoomShips,
-  getRoom,
-  getShipInfo,
-  getUserBySocket,
   getWinnersList,
-} from '../dataBase/dataBase';
+} from '../dataBase/winsDB';
+import { deleteRoom, getRoom } from '../dataBase/roomDB';
+import { addFiredShot, deleteRoomShips, getShipInfo } from '../dataBase/shipsDB';
+import { getUserBySocket } from '../dataBase/userDB';
 import { sender } from '../sender';
 import { IRoom } from '../types';
 import { wss } from '../ws_server';
@@ -143,11 +140,13 @@ export const attackHandler = (data: string, socket: import('ws')) => {
         winPlayer: prevShooter.index,
       });
     });
-  }
 
-  const roomData = [] as unknown as IRoom;
+    const roomData = [] as unknown as IRoom;
 
   wss.clients.forEach((client) => {
     sender(client, 'update_room', roomData);
   });
+  }
+
+  
 };

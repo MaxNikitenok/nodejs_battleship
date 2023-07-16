@@ -16,7 +16,7 @@ export const locationsParser = (ships: IShips) => {
   ];
 
   ships.firedShots = [];
-  
+
   ships.ships.forEach((o: {
     position: {
       x: number;

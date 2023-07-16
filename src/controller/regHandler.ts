@@ -1,4 +1,4 @@
-import { getUserByName, createUser } from '../dataBase/dataBase';
+import { createUser, getUserByName } from '../dataBase/userDB';
 import { sender } from '../sender';
 
 export const regHandler = async (data: string, socket: import('ws')) => {

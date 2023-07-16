@@ -1,21 +1,15 @@
 import { updateRoom } from '../dataBase/roomDB';
-import { getUserBySocket } from '../dataBase/userDB';
 import { sender } from '../sender';
 import { wss } from '../ws_server';
 
-export const addUserToRoomHandler = (data: string, socket: import('ws')) => {
-  const indexRoom = JSON.parse(data).indexRoom;
+export const addBotToRoomHandler = (roomId: number) => {
 
-  const newRoommate = () => {
-    const user = getUserBySocket(socket);
-    return {
-      name: user.name,
-      index: user.index,
-      ws: user.ws,
+  const newRoommate = {
+      name: 'Bot',
+      index: 99,
     };
-  };
-
-  const room = updateRoom(newRoommate(), indexRoom);
+  
+  const room = updateRoom(newRoommate, roomId);
   const roomData = { roomId: room.roomId, roomUsers: room.roomUsers };
 
   wss.clients.forEach((client) => {

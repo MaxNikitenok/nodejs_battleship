@@ -1,4 +1,4 @@
-import { getFiredShots } from '../dataBase/dataBase';
+import { getFiredShots } from '../dataBase/shipsDB';
 import { attackHandler } from './attackHandler';
 
 export const randomAttackHandler = (data: string, socket: import('ws')) => {

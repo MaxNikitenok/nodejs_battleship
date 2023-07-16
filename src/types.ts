@@ -10,7 +10,7 @@ export interface IUser extends INewUser {
 export type ICurrentUser = {
   name: string;
   index: number;
-  ws: import('ws');
+  ws?: import('ws');
 };
 
 export type IRoom = {
@@ -33,21 +33,21 @@ export type IShips = {
     };
     direction: boolean;
     length: number;
-    type: 'small' | 'medium' | 'large' | 'huge';
-    shipPositions: {
+    type: string;
+    shipPositions?: {
       x: number;
       y: number;
     }[];
-    freeAreaPositions: {
+    freeAreaPositions?: {
       x: number;
       y: number;
     }[];
-    hits: {
+    hits?: {
       x: number;
       y: number;
     }[];
   }[];
-  firedShots: {
+  firedShots?: {
     x: number;
     y: number;
   }[];
@@ -58,3 +58,64 @@ export type IWins = {
   name: string;
   wins: number;
 };
+
+export interface RegResponse {
+  name: string;
+  index: number;
+  error: boolean;
+  errorText: string;
+}
+
+export interface createGameResponse {
+  idGame: number;
+  idPlayer: number;
+}
+
+export interface StartGameResponse {
+  ships: [
+    {
+      position: {
+        x: number;
+        y: number;
+      };
+      direction: boolean;
+      length: number;
+      type: string;
+    }
+  ];
+  currentPlayerIndex: number;
+}
+
+export interface UpdateWinnersResponse {
+  name: string;
+  wins: number;
+}
+[];
+
+export interface UpdateRoomResponse {
+  roomId: number;
+  roomUsers: [
+    {
+      name: string;
+      index: number;
+    }
+  ];
+}
+[];
+
+export interface AttackResponse {
+  position: {
+    x: number;
+    y: number;
+  };
+  currentPlayer: number;
+  status: string;
+}
+
+export interface TurnResponse {
+  currentPlayer: number;
+}
+
+export interface FinishResponse {
+  winPlayer: number;
+}
